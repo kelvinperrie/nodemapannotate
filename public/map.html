@@ -1,0 +1,178 @@
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+<link rel="stylesheet" href="https://unpkg.com/@geoman-io/leaflet-geoman-free@latest/dist/leaflet-geoman.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script src="https://unpkg.com/@geoman-io/leaflet-geoman-free@latest/dist/leaflet-geoman.min.js"></script>
+<style>
+    #map { 
+        height: 800px; 
+        width: 800px; 
+    }
+    /* #map-javascript{
+        
+    }
+    #shape-javascript{
+        
+    } */
+ </style>
+
+<div>
+    TESTINGSDfsdf jasldkfj al;skdjf asdf
+</div>
+<div>
+    just some html my dude
+</div>
+
+<button id="savebtn">
+    Save
+</button>
+<button id="loadbtn">
+    Load
+</button>
+
+<div id="map"></div>
+
+
+
+<script>
+
+    function ShowDataOnMap(data) {
+        console.log("we're in ShowDataOnMap")
+        console.log(data)
+        var geoLayers = JSON.parse(data);
+                for (geoLayer of geoLayers){
+                    // we have to treat point layers differently - circles and markers are built from points, but are not supported in
+                    // the geojson format, so we need to reconstruct them using the options we crammed in the geojson layers when no one was looking
+                    if(geoLayer.geometry.type === "Point") {
+                        console.log("it's a point");
+                        L.geoJSON(geoLayer, {
+                            pointToLayer: function (feature, latlng) {
+                                // it's a marker - so it could be a circle or a marker (a marker can also be a text marker! yay!)
+                                // if its got a radius then it must be a circle right?!?
+                                if(feature.properties && feature.properties.radius) {
+                                    console.log("it's a circle");
+                                    return L.circle(latlng, feature.properties);
+                                } else {
+                                    // it's a marker! If it's a text marker then that is determined by the properties
+                                    console.log("it's a marker");
+                                    console.log(feature.properties)
+                                    // if we just throw the feature properies at the new marker as its options then it messes up some stuff internally on the marker (icon property)
+                                    // so just copy the ones we care about to maintain our marker state
+                                    let featureOptions = {};
+                                    if(feature.properties && feature.properties.textMarker == true) {
+                                        featureOptions.textMarker = true;
+                                        featureOptions.text = feature.properties.text;
+                                        //featureOptions.pane = feature.pane;
+                                    }
+                                    console.log(featureOptions);
+                                    return L.marker(latlng, featureOptions);
+                                }
+                                //return L.circle(latlng, geojsonMarkerOptions);
+                                //L.marker([50.5, 30.5]).addTo(map);
+                            }
+                        }).addTo(map);
+                    } else {
+                        console.log("I dunno what it is, but it should be fine!");
+                        L.geoJSON(geoLayer).addTo(map);
+                    }
+                }
+    }
+
+    function LoadDataFromDb() {
+        console.log("attempting to load data")
+
+        const params = new Proxy(new URLSearchParams(window.location.search), {
+            get: (searchParams, prop) => searchParams.get(prop),
+        });
+        // Get the value of "some_key" in eg "https://example.com/?some_key=some_value"
+        let mapKey = params.key; // "some_value"
+        let postData = { 'key' : mapKey };
+        fetch('/getmapdata?' + new URLSearchParams({
+            key: mapKey
+        }), { headers: {
+                'Content-Type': 'application/json'
+        } })
+        .then((response) => {
+            if(response.ok) {
+                return response.json();
+            } else {
+                console.log("RUH ROH error while getting map data");
+            }
+        })
+        .then((dataResponse) => {
+            console.log("we got the stupid data")
+            console.log(dataResponse);
+            // we don't need the whole record, just the bit in the data field
+            //let jsonResponse = JSON.parse(dataResponse);
+            ShowDataOnMap(dataResponse.Data);
+            console.log("i just got map data!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        })
+    }
+    //LoadDataFromDb();
+
+    function saveDataToDb(){
+        var allLayers = L.featureGroup();
+        var geoJsonLayers = [];
+        map.eachLayer(function(layer){
+            if(layer instanceof L.Path || layer instanceof L.Marker){
+                allLayers.addLayer(layer);
+                console.log(layer)
+                let geoJsonLayer = layer.toGeoJSON();
+                // cram the layer options into the geoJson layer. The options hold information that isn't supported by the 
+                // geojson format that we can use to reconstruct the layer later
+                geoJsonLayer.properties = layer.options;
+                console.log(geoJsonLayer);
+                geoJsonLayers.push(geoJsonLayer);
+            }
+        });
+
+        //let jsonLayersData = JSON.stringify(geoJsonLayers);
+
+        let postData = JSON.stringify({ 'key' : 'test', 'data' : geoJsonLayers});
+        console.log("about to send data from map.html on save")
+        console.log(postData)
+
+        fetch('/setmapdata', { method: "POST", body: postData, 
+            headers: {
+                'Content-Type': 'application/json'
+            } })
+        .then((response) => {
+            if(response.ok) {
+                return response.json();
+            } else {
+                console.log("RUH ROH error while Setting map data");
+            }
+        })
+        .then((data) => {
+            console.log(data);
+            console.log("i just set map data")
+        })
+
+        //localStorage.setItem('data', JSON.stringify(geoJsonLayers));
+    }
+
+    var map = L.map('map').setView([-39.19340, 173.98926], 15);
+    function SetupMap() {
+
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        }).addTo(map);
+
+        map.pm.addControls({  
+            position: 'topleft',  
+            drawCircleMarker: false,
+            rotateMode: false,
+            });
+    }
+    //setTimeout(SetupMap,2000)
+    SetupMap();
+
+
+
+    var elm = document.getElementById("savebtn");
+    elm.onclick = saveDataToDb;
+
+    var elm = document.getElementById("loadbtn");
+    elm.onclick = LoadDataFromDb;
+
+</script>
