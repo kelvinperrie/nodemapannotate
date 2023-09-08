@@ -3,33 +3,39 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <script src="https://unpkg.com/@geoman-io/leaflet-geoman-free@latest/dist/leaflet-geoman.min.js"></script>
 <style>
+    body {
+        margin: 0;
+    }
     #map { 
-        height: 800px; 
-        width: 800px; 
+        width: 100%;
+        height: 100%; 
     }
 
-    /* :root{
-       --fontSize: 20px;
+    :root{
+       --fontSize: 13px;
     }
 
     .pm-textarea{
         font-size: var(--fontSize);
-    } */
+    }
+    .action-bar {
+        position: absolute;
+        z-index: 1000;
+        right: 5px;
+    }
  </style>
 
-<div>
-    TESTINGSDfsdf jasldkfj al;skdjf asdf
+<div class="action-bar">
+    <button id="savebtn">
+        Save
+    </button>
+    <button id="loadbtn">
+        Load
+    </button>
+    <button id="clearbtn">
+        Clear
+    </button>
 </div>
-<div>
-    just some html my dude
-</div>
-
-<button id="savebtn">
-    Save
-</button>
-<button id="loadbtn">
-    Load
-</button>
 
 <div id="map"></div>
 
@@ -37,11 +43,21 @@
 
 <script>
 
+    function ClearAllDrawingLayers() {
+        map.eachLayer(function(layer){
+            if(layer instanceof L.Path || layer instanceof L.Marker){
+                console.log(layer)
+                layer.remove();
+            }
+        });
+    }
+
     function ShowDataOnMap(data) {
-        console.log("we're in ShowDataOnMap")
+        console.log("we're in ShowDataOnMap with this data:")
         console.log(data)
         var geoLayers = JSON.parse(data);
         for (geoLayer of geoLayers){
+            console.log("we're adding a layer of type " + geoLayer.geometry.type)
             // we have to treat point layers differently - circles and markers are built from points, but are not supported in
             // the geojson format, so we need to reconstruct them using the options we crammed in the geojson layers when no one was looking
             if(geoLayer.geometry.type === "Point") {
@@ -64,64 +80,65 @@
                             if(feature.properties && feature.properties.textMarker == true) {
                                 featureOptions.textMarker = true;
                                 featureOptions.text = feature.properties.text;
-                                //featureOptions.pane = feature.pane;
                             }
                             console.log(featureOptions);
                             return L.marker(latlng, featureOptions);
                         }
-                        //return L.circle(latlng, geojsonMarkerOptions);
-                        //L.marker([50.5, 30.5]).addTo(map);
                     }
                 }).addTo(map);
             } else {
-                console.log("I dunno what it is, but it should be fine!");
+                console.log("I don't think we need to do anything special for this type of layer");
                 L.geoJSON(geoLayer).addTo(map);
             }
         }
     }
 
     function LoadDataFromDb() {
+        ClearAllDrawingLayers();
         console.log("attempting to load data")
 
+        // get the key from the query string
         const params = new Proxy(new URLSearchParams(window.location.search), {
             get: (searchParams, prop) => searchParams.get(prop),
         });
-        // Get the value of "some_key" in eg "https://example.com/?some_key=some_value"
-        let mapKey = params.key; // "some_value"
-        let postData = { 'key' : mapKey };
-        fetch('/getmapdata?' + new URLSearchParams({
-            key: mapKey
-        }), { headers: {
-                'Content-Type': 'application/json'
-        } })
-        .then((response) => {
-            if(response.ok) {
-                return response.json();
-            } else {
-                console.log("RUH ROH error while getting map data");
-            }
-        })
-        .then((dataResponse) => {
-            console.log("we got the stupid data")
-            console.log(dataResponse);
-            // we don't need the whole record, just the bit in the data field
-            //let jsonResponse = JSON.parse(dataResponse);
-            ShowDataOnMap(dataResponse.Data);
-            console.log("i just got map data!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-        })
+        let mapKey = params.key;
+        if(mapKey) {
+            // using the key, request data from the db
+            let postData = { 'key' : mapKey };
+            fetch('/getmapdata?' + new URLSearchParams({
+                key: mapKey
+            }), { headers: {
+                    'Content-Type': 'application/json'
+            } })
+            .then((response) => {
+                if(response.ok) {
+                    return response.json();
+                } else {
+                    console.log("error while getting map data; response is:");
+                    console.log(response);
+                }
+            })
+            .then((dataResponse) => {
+                console.log("we got the data:")
+                console.log(dataResponse);
+                // we don't need the whole record, just the bit in the data field
+                ShowDataOnMap(dataResponse.Data);
+            })
+        } else {
+            console.log("could not load data - no key supplied in query string params")
+        }
     }
-    //LoadDataFromDb();
+    
 
     function saveDataToDb(){
 
         // we're going to check if we're editing and if we are we want to turn off editing
+        // otherwise we end up saving all the temp edit shapes
         // these methods seem weirdly named, but they seem to do what we want ...?
         if(map.pm.globalEditModeEnabled()) {
             console.log("stopping editing!")
             map.pm.disableGlobalEditMode();
         }
-
-
 
         //var allLayers = L.featureGroup();
         var geoJsonLayers = [];
@@ -183,31 +200,31 @@
             position: 'topleft',  
             drawCircleMarker: false,
             rotateMode: false,
-            });
+        });
+        LoadDataFromDb();
     }
     //setTimeout(SetupMap,2000)
     SetupMap();
 
 
-    // var layer;
-    // // listen to when a new layer is created
-    // map.on('pm:create', function(e) {
-    //     layer = e.layer;
-    // });
-
-
-    // var rootCSS = document.querySelector(':root');
-    // map.on('zoom zoomend',(e)=>{
-    //     console.log("map has zoomed or zoom ended")
-    //     map.eachLayer(function(layer){
-    //         if(layer){
-    //             var size = 18 * (map.getZoom() / 18);
-    //             console.log(size, map.getZoom())
-    //             rootCSS.style.setProperty('--fontSize', size+'px');
-    //             layer.pm._autoResize();
-    //         }
-    //     })
-    // })
+    // this is sample code to resize text when zoom occurs
+    var layer;
+    // listen to when a new layer is created
+    map.on('pm:create', function(e) {
+        layer = e.layer;
+    });
+    var rootCSS = document.querySelector(':root');
+    map.on('zoom zoomend',(e)=>{
+        console.log("map has zoomed or zoom ended")
+        // map.eachLayer(function(layer){
+        //     if(layer){
+        //         var size = 18 * (map.getZoom() / 18);
+        //         console.log(size, map.getZoom())
+        //         rootCSS.style.setProperty('--fontSize', size+'px');
+        //         layer.pm._autoResize();
+        //     }
+        // })
+    })
 
 
 
@@ -216,5 +233,9 @@
 
     var elm = document.getElementById("loadbtn");
     elm.onclick = LoadDataFromDb;
+
+    var elm = document.getElementById("clearbtn");
+    elm.onclick = ClearAllDrawingLayers;
+    
 
 </script>
