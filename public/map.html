@@ -166,8 +166,8 @@
         //let jsonLayersData = JSON.stringify(geoJsonLayers);
 
         let postData = JSON.stringify({ 'key' : 'test', 'data' : geoJsonLayers});
-        console.log("about to send data from map.html on save")
-        console.log(postData)
+        // console.log("about to send data from map.html on save")
+        // console.log(postData)
 
         fetch('/setmapdata', { method: "POST", body: postData, 
             headers: {
@@ -177,12 +177,12 @@
             if(response.ok) {
                 return response.json();
             } else {
-                console.log("RUH ROH error while Setting map data");
+                console.log("error while sending map data to db; response is:");
+                console.log(response);
             }
         })
         .then((data) => {
             console.log(data);
-            console.log("i just set map data")
         })
 
         //localStorage.setItem('data', JSON.stringify(geoJsonLayers));
