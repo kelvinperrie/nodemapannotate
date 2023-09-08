@@ -12,7 +12,7 @@
     }
 
     :root{
-       --fontSize: 13px;
+       --fontSize: 11px;
     }
 
     .pm-textarea{
@@ -203,27 +203,32 @@
         });
         LoadDataFromDb();
     }
-    //setTimeout(SetupMap,2000)
     SetupMap();
 
 
     // this is sample code to resize text when zoom occurs
-    var layer;
-    // listen to when a new layer is created
-    map.on('pm:create', function(e) {
-        layer = e.layer;
-    });
+    // var layer;
+    // // listen to when a new layer is created
+    // map.on('pm:create', function(e) {
+    //     layer = e.layer;
+    // });
     var rootCSS = document.querySelector(':root');
     map.on('zoom zoomend',(e)=>{
-        console.log("map has zoomed or zoom ended")
-        // map.eachLayer(function(layer){
-        //     if(layer){
-        //         var size = 18 * (map.getZoom() / 18);
-        //         console.log(size, map.getZoom())
-        //         rootCSS.style.setProperty('--fontSize', size+'px');
-        //         layer.pm._autoResize();
-        //     }
-        // })
+        let layers = map.pm.getGeomanLayers();
+
+        //var size = 18 * (map.getZoom() / 18);
+        var size = map.getZoom() - 4;
+        // set the font size in relation to the current zoom level
+        rootCSS.style.setProperty('--fontSize', size+'px');
+        // for each textmarker layer we need the text area to resize
+        layers.forEach((layer)=>{
+            if(layer.defaultOptions.textMarker) {
+                // we're going to force it to resize the text area by setting the content
+                let currentText = layer.pm.getText()
+                layer.pm.setText(currentText)
+            }
+        });
+
     })
 
 
