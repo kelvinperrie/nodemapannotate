@@ -7,11 +7,13 @@
         height: 800px; 
         width: 800px; 
     }
-    /* #map-javascript{
-        
+
+    /* :root{
+       --fontSize: 20px;
     }
-    #shape-javascript{
-        
+
+    .pm-textarea{
+        font-size: var(--fontSize);
     } */
  </style>
 
@@ -39,42 +41,43 @@
         console.log("we're in ShowDataOnMap")
         console.log(data)
         var geoLayers = JSON.parse(data);
-                for (geoLayer of geoLayers){
-                    // we have to treat point layers differently - circles and markers are built from points, but are not supported in
-                    // the geojson format, so we need to reconstruct them using the options we crammed in the geojson layers when no one was looking
-                    if(geoLayer.geometry.type === "Point") {
-                        console.log("it's a point");
-                        L.geoJSON(geoLayer, {
-                            pointToLayer: function (feature, latlng) {
-                                // it's a marker - so it could be a circle or a marker (a marker can also be a text marker! yay!)
-                                // if its got a radius then it must be a circle right?!?
-                                if(feature.properties && feature.properties.radius) {
-                                    console.log("it's a circle");
-                                    return L.circle(latlng, feature.properties);
-                                } else {
-                                    // it's a marker! If it's a text marker then that is determined by the properties
-                                    console.log("it's a marker");
-                                    console.log(feature.properties)
-                                    // if we just throw the feature properies at the new marker as its options then it messes up some stuff internally on the marker (icon property)
-                                    // so just copy the ones we care about to maintain our marker state
-                                    let featureOptions = {};
-                                    if(feature.properties && feature.properties.textMarker == true) {
-                                        featureOptions.textMarker = true;
-                                        featureOptions.text = feature.properties.text;
-                                        //featureOptions.pane = feature.pane;
-                                    }
-                                    console.log(featureOptions);
-                                    return L.marker(latlng, featureOptions);
-                                }
-                                //return L.circle(latlng, geojsonMarkerOptions);
-                                //L.marker([50.5, 30.5]).addTo(map);
+        for (geoLayer of geoLayers){
+            // we have to treat point layers differently - circles and markers are built from points, but are not supported in
+            // the geojson format, so we need to reconstruct them using the options we crammed in the geojson layers when no one was looking
+            if(geoLayer.geometry.type === "Point") {
+                console.log("it's a point");
+                L.geoJSON(geoLayer, {
+                    pointToLayer: function (feature, latlng) {
+                        // it's a marker - so it could be a circle or a marker (a marker can also be a text marker! yay!)
+                        // if its got a radius then it must be a circle right?!?
+                        if(feature.properties && feature.properties.radius) {
+                            console.log("it's a circle");
+                            console.log(feature.properties)
+                            return L.circle(latlng, feature.properties);
+                        } else {
+                            // it's a marker! If it's a text marker then that is determined by the properties
+                            console.log("it's a marker");
+                            console.log(feature.properties)
+                            // if we just throw the feature properies at the new marker as its options then it messes up some stuff internally on the marker (icon property)
+                            // so just copy the ones we care about to maintain our marker state
+                            let featureOptions = {};
+                            if(feature.properties && feature.properties.textMarker == true) {
+                                featureOptions.textMarker = true;
+                                featureOptions.text = feature.properties.text;
+                                //featureOptions.pane = feature.pane;
                             }
-                        }).addTo(map);
-                    } else {
-                        console.log("I dunno what it is, but it should be fine!");
-                        L.geoJSON(geoLayer).addTo(map);
+                            console.log(featureOptions);
+                            return L.marker(latlng, featureOptions);
+                        }
+                        //return L.circle(latlng, geojsonMarkerOptions);
+                        //L.marker([50.5, 30.5]).addTo(map);
                     }
-                }
+                }).addTo(map);
+            } else {
+                console.log("I dunno what it is, but it should be fine!");
+                L.geoJSON(geoLayer).addTo(map);
+            }
+        }
     }
 
     function LoadDataFromDb() {
@@ -110,17 +113,35 @@
     //LoadDataFromDb();
 
     function saveDataToDb(){
-        var allLayers = L.featureGroup();
+
+        // we're going to check if we're editing and if we are we want to turn off editing
+        // these methods seem weirdly named, but they seem to do what we want ...?
+        if(map.pm.globalEditModeEnabled()) {
+            console.log("stopping editing!")
+            map.pm.disableGlobalEditMode();
+        }
+
+
+
+        //var allLayers = L.featureGroup();
         var geoJsonLayers = [];
+        
         map.eachLayer(function(layer){
             if(layer instanceof L.Path || layer instanceof L.Marker){
-                allLayers.addLayer(layer);
+                //allLayers.addLayer(layer);
+                console.log("we're saving a layer! This is the layer:")
                 console.log(layer)
                 let geoJsonLayer = layer.toGeoJSON();
                 // cram the layer options into the geoJson layer. The options hold information that isn't supported by the 
                 // geojson format that we can use to reconstruct the layer later
+                console.log("These are the layer.options")
+                console.log(layer.options)
+                //layer.options.radius = layer._radius;
+                // set the radius - after a circle is edited the radius isn't set right??????
+                layer.options.radius = layer._mRadius;
                 geoJsonLayer.properties = layer.options;
-                console.log(geoJsonLayer);
+                //console.log(geoJsonLayer);
+                console.log("the _mRadius is " + layer._mRadius)
                 geoJsonLayers.push(geoJsonLayer);
             }
         });
@@ -166,6 +187,27 @@
     }
     //setTimeout(SetupMap,2000)
     SetupMap();
+
+
+    // var layer;
+    // // listen to when a new layer is created
+    // map.on('pm:create', function(e) {
+    //     layer = e.layer;
+    // });
+
+
+    // var rootCSS = document.querySelector(':root');
+    // map.on('zoom zoomend',(e)=>{
+    //     console.log("map has zoomed or zoom ended")
+    //     map.eachLayer(function(layer){
+    //         if(layer){
+    //             var size = 18 * (map.getZoom() / 18);
+    //             console.log(size, map.getZoom())
+    //             rootCSS.style.setProperty('--fontSize', size+'px');
+    //             layer.pm._autoResize();
+    //         }
+    //     })
+    // })
 
 
 
