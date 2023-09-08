@@ -10,27 +10,28 @@ var app = express();
 // Parse JSON bodies (as sent by API clients)
 app.use(express.json());
 
+// serve our static map page
 app.use(express.static('public'));
 app.get('/index.htm', function (req, res) {
    res.sendFile( __dirname + "/" + "index.htm" );
 })
 
-app.get('/process_get', function (req, res) {
-   // Prepare output in JSON format
-   response = {
-      first_name:req.query.first_name,
-      last_name:req.query.last_name
-   };
-   console.log(response);
-   res.end(JSON.stringify(response));
-})
+// app.get('/process_get', function (req, res) {
+//    // Prepare output in JSON format
+//    response = {
+//       first_name:req.query.first_name,
+//       last_name:req.query.last_name
+//    };
+//    console.log(response);
+//    res.end(JSON.stringify(response));
+// })
 
 app.get('/getMapData', function (req, res) {
     let mapKey = req.query.key;
 
     var completionCallback = function(data) {
-        console.log("in completionCallback")
-        console.log(data)
+        //console.log("in completionCallback")
+        //console.log(data)
         // send records as a response
         res.send(data);
     }
@@ -43,12 +44,12 @@ app.get('/getMapData', function (req, res) {
 
     let mapKey = req.body.key;
     let mapData = JSON.stringify(req.body.data);
-    console.log("mapKey is " + mapKey)
-    console.log("mapData is " + mapData)
+    //console.log("mapKey is " + mapKey)
+    //console.log("mapData is " + mapData)
 
     var completionCallback = function(data) {
-        console.log("in completionCallback")
-        console.log(data)
+        //console.log("in completionCallback")
+        //console.log(data)
         // send records as a response
         res.send(data);
     }
