@@ -1,5 +1,6 @@
 require('dotenv').config({path: __dirname + '/.env.local'})
-const db = require("./db")
+//const db = require("./db")
+const db = require("./neondb")
 
 var express = require('express');
 var app = express();
@@ -40,7 +41,7 @@ app.get('/getMapData', function (req, res) {
 
 
  app.post('/setMapData', function (req, res) {
-    console.log("in setMapData")
+    console.log("in server.js setMapData")
 
     let mapKey = req.body.key;
     let mapData = JSON.stringify(req.body.data);
