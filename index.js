@@ -14,9 +14,9 @@ app.use(express.json());
 
 // serve our static map page
 app.use(express.static('public'));
-app.get('/index.htm', function (req, res) {
-   res.sendFile( __dirname + "/" + "index.htm" );
-})
+// app.get('/index.htm', function (req, res) {
+//    res.sendFile( __dirname + "/" + "index.htm" );
+// })
 
 // provides a route for getting map data
 app.get('/getMapData', function (req, res) {
