@@ -14,7 +14,7 @@ app.use(express.json());
 
 // serve our static map page
 app.use(express.static('public'));
-app.get('/map.htm', function (req, res) {
+app.get('/map.html', function (req, res) {
     res.sendFile('map.html', {root: path.join(__dirname, 'public')});
    //res.sendFile( __dirname + "/" + "map.htm" );
 })
