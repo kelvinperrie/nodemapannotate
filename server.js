@@ -1,12 +1,13 @@
 require('dotenv').config({path: __dirname + '/.env.local'})
-//const db = require("./db")
-const db = require("./neondb")
+
+// work out what data layer we're using
+let db = require("./dbneon")
+if(process.env.DBTYPE=='mssql') {
+    db = require("./dbmssql")
+}
 
 var express = require('express');
 var app = express();
-
-// Parse URL-encoded bodies (as sent by HTML forms)
-//app.use(express.urlencoded());
 
 // Parse JSON bodies (as sent by API clients)
 app.use(express.json());
@@ -17,16 +18,7 @@ app.get('/index.htm', function (req, res) {
    res.sendFile( __dirname + "/" + "index.htm" );
 })
 
-// app.get('/process_get', function (req, res) {
-//    // Prepare output in JSON format
-//    response = {
-//       first_name:req.query.first_name,
-//       last_name:req.query.last_name
-//    };
-//    console.log(response);
-//    res.end(JSON.stringify(response));
-// })
-
+// provides a route for getting map data
 app.get('/getMapData', function (req, res) {
     let mapKey = req.query.key;
 
@@ -39,14 +31,12 @@ app.get('/getMapData', function (req, res) {
     db.GetMapData(mapKey, completionCallback);
 })
 
-
- app.post('/setMapData', function (req, res) {
+// provides a route for setting map data
+app.post('/setMapData', function (req, res) {
     console.log("in server.js setMapData")
 
     let mapKey = req.body.key;
     let mapData = JSON.stringify(req.body.data);
-    //console.log("mapKey is " + mapKey)
-    //console.log("mapData is " + mapData)
 
     var completionCallback = function(data) {
         //console.log("in completionCallback")
@@ -59,8 +49,8 @@ app.get('/getMapData', function (req, res) {
 })
 
 var server = app.listen(8081, function () {
-   var host = server.address().address
-   var port = server.address().port
-   
-   console.log("Example app listening at http://%s:%s", host, port)
+    var host = server.address().address
+    var port = server.address().port
+    
+    console.log("Example app listening at http://%s:%s", host, port)
 })
