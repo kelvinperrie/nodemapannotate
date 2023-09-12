@@ -43,37 +43,37 @@
 
 <script>
 
+    // removes all geoman layers
     function ClearAllDrawingLayers() {
         map.eachLayer(function(layer){
             if(layer instanceof L.Path || layer instanceof L.Marker){
-                console.log(layer)
                 layer.remove();
             }
         });
     }
 
     function ShowDataOnMap(data) {
-        console.log("we're in ShowDataOnMap with this data:")
-        console.log(data)
+        // console.log("we're in ShowDataOnMap with this data:")
+        // console.log(data)
         var geoLayers = JSON.parse(data);
         for (geoLayer of geoLayers){
-            console.log("we're adding a layer of type " + geoLayer.geometry.type)
+            //console.log("we're adding a layer of type " + geoLayer.geometry.type)
             // we have to treat point layers differently - circles and markers are built from points, but are not supported in
             // the geojson format, so we need to reconstruct them using the options we crammed in the geojson layers when no one was looking
             if(geoLayer.geometry.type === "Point") {
-                console.log("it's a point");
+                //console.log("it's a point");
                 L.geoJSON(geoLayer, {
                     pointToLayer: function (feature, latlng) {
                         // it's a marker - so it could be a circle or a marker (a marker can also be a text marker! yay!)
                         // if its got a radius then it must be a circle right?!?
                         if(feature.properties && feature.properties.radius) {
-                            console.log("it's a circle");
-                            console.log(feature.properties)
+                            // console.log("it's a circle");
+                            // console.log(feature.properties)
                             return L.circle(latlng, feature.properties);
                         } else {
                             // it's a marker! If it's a text marker then that is determined by the properties
-                            console.log("it's a marker");
-                            console.log(feature.properties)
+                            // console.log("it's a marker");
+                            // console.log(feature.properties)
                             // if we just throw the feature properies at the new marker as its options then it messes up some stuff internally on the marker (icon property)
                             // so just copy the ones we care about to maintain our marker state
                             let featureOptions = {};
@@ -81,13 +81,13 @@
                                 featureOptions.textMarker = true;
                                 featureOptions.text = feature.properties.text;
                             }
-                            console.log(featureOptions);
+                            //console.log(featureOptions);
                             return L.marker(latlng, featureOptions);
                         }
                     }
                 }).addTo(map);
             } else {
-                console.log("I don't think we need to do anything special for this type of layer");
+                //console.log("I don't think we need to do anything special for this type of layer");
                 L.geoJSON(geoLayer).addTo(map);
             }
         }
@@ -95,7 +95,7 @@
 
     function LoadDataFromDb() {
         ClearAllDrawingLayers();
-        console.log("attempting to load data")
+        //console.log("attempting to load data")
 
         // get the key from the query string
         const params = new Proxy(new URLSearchParams(window.location.search), {
@@ -119,8 +119,8 @@
                 }
             })
             .then((dataResponse) => {
-                console.log("we got the data:")
-                console.log(dataResponse);
+                // console.log("we got the data:")
+                // console.log(dataResponse);
                 // we don't need the whole record, just the bit in the data field
                 ShowDataOnMap(dataResponse.Data);
             })
@@ -136,38 +136,30 @@
         // otherwise we end up saving all the temp edit shapes
         // these methods seem weirdly named, but they seem to do what we want ...?
         if(map.pm.globalEditModeEnabled()) {
-            console.log("stopping editing!")
             map.pm.disableGlobalEditMode();
         }
 
-        //var allLayers = L.featureGroup();
         var geoJsonLayers = [];
         
         map.eachLayer(function(layer){
             if(layer instanceof L.Path || layer instanceof L.Marker){
-                //allLayers.addLayer(layer);
-                console.log("we're saving a layer! This is the layer:")
-                console.log(layer)
+                // console.log("we're saving a layer! This is the layer:")
+                // console.log(layer)
                 let geoJsonLayer = layer.toGeoJSON();
                 // cram the layer options into the geoJson layer. The options hold information that isn't supported by the 
                 // geojson format that we can use to reconstruct the layer later
-                console.log("These are the layer.options")
-                console.log(layer.options)
-                //layer.options.radius = layer._radius;
+                // console.log("These are the layer.options")
+                // console.log(layer.options)
                 // set the radius - after a circle is edited the radius isn't set right??????
                 layer.options.radius = layer._mRadius;
                 geoJsonLayer.properties = layer.options;
-                //console.log(geoJsonLayer);
-                console.log("the _mRadius is " + layer._mRadius)
+                //console.log("the _mRadius is " + layer._mRadius)
                 geoJsonLayers.push(geoJsonLayer);
             }
         });
 
-        //let jsonLayersData = JSON.stringify(geoJsonLayers);
 
         let postData = JSON.stringify({ 'key' : 'test', 'data' : geoJsonLayers});
-        // console.log("about to send data from map.html on save")
-        // console.log(postData)
 
         fetch('/setmapdata', { method: "POST", body: postData, 
             headers: {
@@ -185,7 +177,6 @@
             console.log(data);
         })
 
-        //localStorage.setItem('data', JSON.stringify(geoJsonLayers));
     }
 
     var map = L.map('map').setView([-39.19340, 173.98926], 15);
@@ -207,11 +198,6 @@
 
 
     // this is sample code to resize text when zoom occurs
-    // var layer;
-    // // listen to when a new layer is created
-    // map.on('pm:create', function(e) {
-    //     layer = e.layer;
-    // });
     var rootCSS = document.querySelector(':root');
     map.on('zoom zoomend',(e)=>{
         let layers = map.pm.getGeomanLayers();
