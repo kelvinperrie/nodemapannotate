@@ -217,7 +217,7 @@
             rootCSS.style.setProperty('--fontSize', size+'px');
             // for each textmarker layer we need the text area to resize
             layers.forEach((layer)=>{
-                if(layer.defaultOptions.textMarker) {
+                if(layer.defaultOptions && layer.defaultOptions.textMarker) {
                     // we're going to force it to resize the text area by setting the content
                     let currentText = layer.pm.getText()
                     layer.pm.setText(currentText)
