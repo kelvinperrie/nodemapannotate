@@ -48,7 +48,16 @@
 
     <div id="map"></div>
 
-
+    <!-- 
+    todo
+    * put the map stuff in a class
+    * show loading panel with getting data from db
+    * surface errors during db load/save
+    * setup dev db
+    * split out js + css
+    * store map lat/lng in db?
+    * make the save etc buttons better
+    -->
 
     <script>
 
@@ -139,7 +148,7 @@
         }
         
 
-        function saveDataToDb(){
+        function SaveDataToDb(){
 
             // we're going to check if we're editing and if we are we want to turn off editing
             // otherwise we end up saving all the temp edit shapes
@@ -205,10 +214,8 @@
         }
         SetupMap();
 
-
-        // this is sample code to resize text when zoom occurs
-        var rootCSS = document.querySelector(':root');
-        map.on('zoom zoomend',(e)=>{
+        function ResizeTextMarkersBasedOnZoom() {
+            var rootCSS = document.querySelector(':root');
             let layers = map.pm.getGeomanLayers();
 
             //var size = 18 * (map.getZoom() / 18);
@@ -223,13 +230,16 @@
                     layer.pm.setText(currentText)
                 }
             });
+        }
 
+        map.on('zoom zoomend',(e)=>{
+            ResizeTextMarkersBasedOnZoom();
         })
 
 
 
         var elm = document.getElementById("savebtn");
-        elm.onclick = saveDataToDb;
+        elm.onclick = SaveDataToDb;
 
         var elm = document.getElementById("loadbtn");
         elm.onclick = LoadDataFromDb;
