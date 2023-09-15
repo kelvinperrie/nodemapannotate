@@ -48,3 +48,8 @@ button {
     background-color: #f8d7da;
     border-color: #f1aeb5;
 }
+
+
+.leaflet-pm-toolbar .leaflet-pm-icon-layers {
+    background-image: url('assets/Layers.svg');
+  }

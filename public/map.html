@@ -203,15 +203,22 @@
 
         }
 
+        function LoadTileLayer(layerToLoad) {
+            console.log("you're asking me to load "+ layerToLoad)
+        }
+
         var map = L.map('map').setView([-39.19340, 173.98926], 15);
+        let availableLayers = [];
+        let currentLayer = null;
         function SetupMap() {
 
             // possible maps https://leaflet-extras.github.io/leaflet-providers/preview/
 
             // sat images
-            // var Esri_WorldImagery = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-            //     attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
-            // });
+            var Esri_WorldImagery = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+            });
+            availableLayers.push[{ label: "Esri Satelite", layer: Esri_WorldImagery }]
 
             // topo map
             // https://tile.thunderforest.com/outdoors/{z}/{x}/{y}.png?apikey=6ceeda90965642818c0223946515f2e5
@@ -228,6 +235,9 @@
                 apikey: '6ceeda90965642818c0223946515f2e5',
                 maxZoom: 22
             }).addTo(map);;
+            availableLayers.push[{ label: "Thunderforest Outdoors", layer: Thunderforest_Outdoors }];
+            currentLayer = Thunderforest_Outdoors;
+
 
             // open topo map
             // var OpenTopoMap = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
@@ -236,16 +246,38 @@
             // });
 
 
-            // L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            //     maxZoom: 19,
-            //     attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-            // }).addTo(map);
+            var OpenStreetMap = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+            })
+            availableLayers.push[{ label: "OpenStreetMap", layer: OpenStreetMap }];
 
             map.pm.addControls({  
                 position: 'topleft',  
                 drawCircleMarker: false,
                 rotateMode: false,
             });
+
+            map.pm.Toolbar.createCustomControl({
+                name: 'LayersButton',
+                block: 'custom',
+                className: 'leaflet-pm-icon-layers',
+                title: 'My special button!',
+                afterClick: (event) => {
+                    console.log("just clicked on custom button")
+                    console.log(event)
+                    //map.pm.toggleGlobalEditMode();
+                },
+                toggle: true,
+                actions: [{
+                    text: "click me",
+                    onClick: () => {
+                        alert("🙋‍♂️");
+                        //map.pm.Toolbar.setButtonDisabled("CustomButton", false)
+                    },
+                },'finishMode'],
+            });
+
             LoadDataFromDb();
         }
         SetupMap();
