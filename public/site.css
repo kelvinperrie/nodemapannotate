@@ -1,0 +1,50 @@
+body {
+    margin: 0;
+    font-family: Calibri,Candara,Segoe,Segoe UI,Optima,Arial,sans-serif; 
+}
+#map { 
+    width: 100%;
+    height: 100%; 
+}
+html, body {
+    height:100%;
+}
+button {
+    font-family: Calibri,Candara,Segoe,Segoe UI,Optima,Arial,sans-serif; 
+}
+
+:root{
+--fontSize: 11px;
+}
+
+.pm-textarea{
+    font-size: var(--fontSize);
+}
+.action-bar {
+    position: absolute;
+    z-index: 1000;
+    right: 5px;
+}
+
+
+
+.alert-info {
+    color: #0a3622;
+    background-color: #cff4fc;
+    border-color: #9eeaf9;
+}
+.alert-success {
+    color: #055160;
+    background-color: #d1e7dd;
+    border-color: #a3cfbb;
+}
+.alert-warning {
+    color: #664d03;
+    background-color: #fff3cd;
+    border-color: #ffe69c;
+}
+.alert-danger {
+    color: #58151c;
+    background-color: #f8d7da;
+    border-color: #f1aeb5;
+}
