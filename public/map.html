@@ -38,7 +38,7 @@
     * surface errors during db load/save
     * setup dev db
     * split out js + css
-    * store map lat/lng in db?
+    * get a better topo map
     -->
 
     <script>
@@ -206,10 +206,40 @@
         var map = L.map('map').setView([-39.19340, 173.98926], 15);
         function SetupMap() {
 
-            L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                maxZoom: 19,
-                attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-            }).addTo(map);
+            // possible maps https://leaflet-extras.github.io/leaflet-providers/preview/
+
+            // sat images
+            // var Esri_WorldImagery = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+            //     attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+            // });
+
+            // topo map
+            // https://tile.thunderforest.com/outdoors/{z}/{x}/{y}.png?apikey=6ceeda90965642818c0223946515f2e5
+
+            // create a new tile layer
+            // var tileUrl = 'https://tile.thunderforest.com/cycle/{z}/{x}/{y}.png?apikey=<insert-your-apikey-here>',
+            // layer = new L.TileLayer(tileUrl, {maxZoom: 18});
+
+            // add the layer to the map
+            // map.addLayer(layer);
+
+            var Thunderforest_Outdoors = L.tileLayer('https://{s}.tile.thunderforest.com/outdoors/{z}/{x}/{y}.png?apikey={apikey}', {
+                attribution: '&copy; <a href="http://www.thunderforest.com/">Thunderforest</a>, &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+                apikey: '6ceeda90965642818c0223946515f2e5',
+                maxZoom: 22
+            }).addTo(map);;
+
+            // open topo map
+            // var OpenTopoMap = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+            //     maxZoom: 17,
+            //     attribution: 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)'
+            // });
+
+
+            // L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            //     maxZoom: 19,
+            //     attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+            // }).addTo(map);
 
             map.pm.addControls({  
                 position: 'topleft',  
