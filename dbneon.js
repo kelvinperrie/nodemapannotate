@@ -11,12 +11,12 @@ const pool = new Pool({
 });
 
 
-function SetMapData(mapKey, data, completionCallback) {
+function SetMapData(mapKey, data, config, completionCallback) {
     console.log("we're in neondb setmapdata")
     const client = pool.connect()
       .then((poolClient) => {
-        const values = [mapKey, data];
-        poolClient.query('update "MapAnnotations" set "Data"=$2 where "MapKey"=$1', values)
+        const values = [mapKey, data, config];
+        poolClient.query('update "MapAnnotations" set "Data"=$2, "Config"=$3 where "MapKey"=$1', values)
         .then((queryResult) => {
           console.log(queryResult)
         })  

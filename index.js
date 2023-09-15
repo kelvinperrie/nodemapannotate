@@ -37,6 +37,7 @@ app.post('/setMapData', function (req, res) {
     console.log("in server.js setMapData")
 
     let mapKey = req.body.key;
+    let mapConfig = JSON.stringify(req.body.config);
     let mapData = JSON.stringify(req.body.data);
 
     var completionCallback = function(data) {
@@ -46,7 +47,7 @@ app.post('/setMapData', function (req, res) {
         res.send(data);
     }
 
-    db.SetMapData(mapKey, mapData, completionCallback);
+    db.SetMapData(mapKey, mapData, mapConfig, completionCallback);
 })
 
 var server = app.listen(8081, function () {

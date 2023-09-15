@@ -43,6 +43,13 @@
 
     <script>
 
+        // get the key from the query string
+        function GetMapKey() {
+            const params = new Proxy(new URLSearchParams(window.location.search), {
+                get: (searchParams, prop) => searchParams.get(prop),
+            });
+            return params.key;
+        }
         // removes all geoman layers
         function ClearAllDrawingLayers() {
             map.eachLayer(function(layer){
@@ -52,9 +59,16 @@
             });
         }
 
-        function ShowDataOnMap(data) {
+        function ShowDataOnMap(config, data) {
             // console.log("we're in ShowDataOnMap with this data:")
             // console.log(data)
+
+            // configure the map as per data from db
+            let configJson =  JSON.parse(config);
+            if(configJson) {
+                map.setView(new L.LatLng(configJson.center.lat, configJson.center.lng), configJson.zoom);
+            }
+
             var geoLayers = JSON.parse(data);
             for (geoLayer of geoLayers){
                 //console.log("we're adding a layer of type " + geoLayer.geometry.type)
@@ -99,11 +113,7 @@
             ClearAllDrawingLayers();
             //console.log("attempting to load data")
 
-            // get the key from the query string
-            const params = new Proxy(new URLSearchParams(window.location.search), {
-                get: (searchParams, prop) => searchParams.get(prop),
-            });
-            let mapKey = params.key;
+            let mapKey = GetMapKey();
             if(mapKey) {
                 // using the key, request data from the db
                 let postData = { 'key' : mapKey };
@@ -124,7 +134,7 @@
                     // console.log("we got the data:")
                     // console.log(dataResponse);
                     // we don't need the whole record, just the bit in the data field
-                    ShowDataOnMap(dataResponse.Data);
+                    ShowDataOnMap(dataResponse.Config,dataResponse.Data);
                 })
             } else {
                 console.log("could not load data - no key supplied in query string params")
@@ -140,6 +150,13 @@
             // these methods seem weirdly named, but they seem to do what we want ...?
             if(map.pm.globalEditModeEnabled()) {
                 map.pm.disableGlobalEditMode();
+            }
+
+            let mapKey = GetMapKey();
+            if(!mapKey) {
+                console.log("can't save because there's no key")
+                // show user an error
+                return;
             }
 
             var geoJsonLayers = [];
@@ -161,8 +178,12 @@
                 }
             });
 
+            let mapConfigJson = {
+                center : map.getCenter(),
+                zoom : map.getZoom()
+            }
 
-            let postData = JSON.stringify({ 'key' : 'test', 'data' : geoJsonLayers});
+            let postData = JSON.stringify({ 'key' : mapKey, 'data' : geoJsonLayers, 'config' : mapConfigJson});
 
             fetch('/setmapdata', { method: "POST", body: postData, 
                 headers: {
