@@ -1,0 +1,39 @@
+.loader {
+    width: 150px;
+    position: absolute;
+    top: 40%;
+    z-index: 1000;
+    margin: auto;
+    left: 0;
+    right: 0;
+    background-color: #5e5e5e;
+    text-align: center;
+    padding: 3px 0;
+    display: none;
+  }
+  
+  
+  .loader-text {
+    color: #fff;
+    font-family: arial, sans-serif;
+  }
+  
+  .loader-text:after {
+    content: 'Loading';
+    animation: load 2s linear infinite;
+  }
+  
+  @keyframes load {
+    0% {
+      content: 'Loading\00a0\00a0\00a0';
+    }
+    33% {
+      content: 'Loading.\00a0\00a0';
+    }
+    67% {
+      content: 'Loading..\00a0';
+    }
+    100% {
+      content: 'Loading...';
+    }
+  }

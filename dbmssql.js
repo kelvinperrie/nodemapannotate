@@ -9,7 +9,7 @@ const config = {
         trustServerCertificate: true
     },
 }
-function SetMapData(mapKey, data, completionCallback) {
+function SetMapData(mapKey, data, config, completionCallback) {
     console.log("we're in setmapdata")
     console.log("mapKey is "+mapKey)
     console.log("data is "+data)
@@ -24,8 +24,9 @@ function SetMapData(mapKey, data, completionCallback) {
 
         request.input('data', sql.VarChar, data)
         request.input('mapKey', sql.VarChar, mapKey)
+        request.input('config', sql.VarChar, config)
         // use params in the query to avoid sql injection attacks
-        request.query("update MapAnnotations set Data=@data where mapKey=@mapKey")
+        request.query("update MapAnnotations set Data=@data, Config=@config where mapKey=@mapKey")
         .then((data) => {
             console.log("i just updated the MapAnnotations for " + mapKey)
             //console.log(data);
