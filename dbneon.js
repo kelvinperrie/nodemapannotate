@@ -36,20 +36,24 @@ function GetMapData(mapKey, completionCallback) {
   const client = pool.connect()
     .then((poolClient) => {
       const values = [mapKey];
-      poolClient.query('select * from "MapAnnotations" where "MapKey"=$1', values)
-      .then((queryResult) => {
-        console.log(queryResult)
-        console.log(queryResult.rows[0])
-        completionCallback(queryResult.rows[0])
-      })  
-      .catch((error) => {
-        console.log("errorrrrrr running select query!")
-        console.log(error);
-      });
+      poolClient
+        .query('select * from "MapAnnotationsDDDD" where "MapKey"=$1', values)
+        .then((queryResult) => {
+          console.log(queryResult)
+          console.log(queryResult.rows[0])
+          completionCallback(queryResult.rows[0])
+        })  
+        .catch((error) => {
+          let errorMessage = "Error running GetMapData select query. " + error;
+          console.log(errorMessage)
+          console.log(error);
+          completionCallback(null, errorMessage);
+        });
   })
   .catch((error) => {
-    console.log("errorrrrrr connecting to neon!")
+    let errorMessage = "Error connecting to neon. " + error;
     console.log(error);
+    completionCallback(null, errorMessage);
   });
 
 }

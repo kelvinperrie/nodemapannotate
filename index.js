@@ -23,11 +23,17 @@ app.get('/map.html', function (req, res) {
 app.get('/getMapData', function (req, res) {
     let mapKey = req.query.key;
 
-    var completionCallback = function(data) {
+    var completionCallback = function(data, error) {
         //console.log("in completionCallback")
         //console.log(data)
-        // send records as a response
-        res.send(data);
+        if(error) {
+            console.log("about to set an error of")
+            console.log(error)
+            res.status(500).json({success: false, error : error});
+            //throw new Error(error);
+        } else {
+            res.send(data);
+        }
     }
     db.GetMapData(mapKey, completionCallback);
 })

@@ -4,8 +4,10 @@
     <title>Mapping annotations</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
     <link rel="stylesheet" href="https://unpkg.com/@geoman-io/leaflet-geoman-free@latest/dist/leaflet-geoman.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <script src="https://unpkg.com/@geoman-io/leaflet-geoman-free@latest/dist/leaflet-geoman.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
     <style>
         body {
             margin: 0;
@@ -111,6 +113,13 @@
             }
         }
 
+        function ShowUserMessage(type, message) {
+            Toastify({
+                text: message,
+                duration: 10000
+            }).showToast();
+        }
+
         function LoadDataFromDb() {
             ClearAllDrawingLayers();
             //console.log("attempting to load data")
@@ -124,23 +133,34 @@
                 // using the key, request data from the db
                 let postData = { 'key' : mapKey };
                 fetch('/getmapdata?' + new URLSearchParams({
-                    key: mapKey
-                }), { headers: {
-                        'Content-Type': 'application/json'
-                } })
+                        key: mapKey
+                    }), { headers: {
+                            'Content-Type': 'application/json'
+                    } })
                 .then((response) => {
                     if(response.ok) {
                         return response.json();
                     } else {
-                        console.log("error while getting map data; response is:");
-                        console.log(response);
+                        return Promise.reject(response);
                     }
                 })
                 .then((dataResponse) => {
-                    // console.log("we got the data:")
-                    // console.log(dataResponse);
+                    console.log("we got the data:")
+                    console.log(dataResponse);
                     // we don't need the whole record, just the bit in the data field
                     ShowDataOnMap(dataResponse.Data);
+                })
+                .catch(err => {
+                    // there's got to be a better way!
+                    console.log("we're in the error handler")
+                    console.log(err)
+                    if(err.json) {
+                        err.json().then((json) => {
+                            ShowUserMessage("error", json.error)
+                        })
+                    } else {
+                        ShowUserMessage("error", err)
+                    }
                 })
             } else {
                 console.log("could not load data - no key supplied in query string params")
