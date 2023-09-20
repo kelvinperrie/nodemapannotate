@@ -37,10 +37,8 @@
     <!-- 
     todo
     * put the map stuff in a class
-    * surface errors during db load/save
     * setup dev db
     * split out js + css
-    * get a better topo map
     -->
 
     <script>
@@ -109,7 +107,7 @@
         }
 
         function ShowUserMessage(type, message) {
-            // if it's an error message then the user has to close it
+            // if it's an error message then the user has to close it; -1 duration means manual close
             let duration = type === 'danger' ? -1  : 8000;
             Toastify({
                 text: message,
@@ -210,18 +208,13 @@
                     'Content-Type': 'application/json'
                 } })
             .then((response) => {
-                console.log("response from setting map data")
                 if(response.ok) {
                     ShowUserMessage("success", "Map annotations have been saved!")
-                    //return response.json();
+                    // there is no data to process ... don't need to return anything to next .then
                 } else {
                     return Promise.reject(response);
                 }
             })
-            // .then((data) => {
-            //     // I don't think I need to return anything ...???
-            //     console.log(data);
-            // })
             .catch(err => {
                 // [unhappy emoji]
                 if(err.json) {
@@ -235,13 +228,24 @@
 
         }
 
-        function LoadTileLayer(layerToLoad) {
-            console.log("you're asking me to load "+ layerToLoad)
+        // attempts to load the given tile/base layer
+        function LoadTileLayer(layerNameToLoad) {
+            if(currentLayer) {
+                map.removeLayer(currentLayer);
+            }
+            for (possibleLayer of availableLayers) {
+                if(possibleLayer.label === layerNameToLoad) {
+                    console.log("found the layer!")
+                    map.addLayer(possibleLayer.layer);
+                    currentLayer = possibleLayer.layer;
+                    break;
+                }
+            }
         }
 
         var map = L.map('map').setView([-39.19340, 173.98926], 15);
-        let availableLayers = [];
-        let currentLayer = null;
+        let availableLayers = [];       // a collection of all available tile/base layers; used to swap between them
+        let currentLayer = null;        // holds the a reference to the current layer (so that we can remove it if required)
         function SetupMap() {
 
             // possible maps https://leaflet-extras.github.io/leaflet-providers/preview/
@@ -250,39 +254,30 @@
             var Esri_WorldImagery = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
                 attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
             });
-            availableLayers.push[{ label: "Esri Satelite", layer: Esri_WorldImagery }]
+            availableLayers.push({ label: "Esri Satelite", layer: Esri_WorldImagery })
+            console.log(availableLayers)
 
             // topo map
-            // https://tile.thunderforest.com/outdoors/{z}/{x}/{y}.png?apikey=6ceeda90965642818c0223946515f2e5
-
-            // create a new tile layer
-            // var tileUrl = 'https://tile.thunderforest.com/cycle/{z}/{x}/{y}.png?apikey=<insert-your-apikey-here>',
-            // layer = new L.TileLayer(tileUrl, {maxZoom: 18});
-
-            // add the layer to the map
-            // map.addLayer(layer);
-
             var Thunderforest_Outdoors = L.tileLayer('https://{s}.tile.thunderforest.com/outdoors/{z}/{x}/{y}.png?apikey={apikey}', {
                 attribution: '&copy; <a href="http://www.thunderforest.com/">Thunderforest</a>, &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
                 apikey: '6ceeda90965642818c0223946515f2e5',
-                maxZoom: 22
-            }).addTo(map);;
-            availableLayers.push[{ label: "Thunderforest Outdoors", layer: Thunderforest_Outdoors }];
-            currentLayer = Thunderforest_Outdoors;
-
-
+                maxZoom: 19
+            });
+            availableLayers.push({ label: "Thunderforest Outdoors", layer: Thunderforest_Outdoors });
+            
             // open topo map
             // var OpenTopoMap = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
-            //     maxZoom: 17,
+            //     maxZoom: 19,
             //     attribution: 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)'
             // });
+            // availableLayers.push({ label: "OpenTopoMap", layer: OpenTopoMap });
 
 
             var OpenStreetMap = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 maxZoom: 19,
                 attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
             })
-            availableLayers.push[{ label: "OpenStreetMap", layer: OpenStreetMap }];
+            availableLayers.push({ label: "OpenStreetMap", layer: OpenStreetMap });
 
             map.pm.addControls({  
                 position: 'topleft',  
@@ -290,30 +285,37 @@
                 rotateMode: false,
             });
 
+            // create a custom button for changing layers
+            // we're going to build up the actions for the button based on how many available layers we have
+            let actions = [];
+            for (possibleLayer of availableLayers) {
+                (function(label){
+                    actions.push({
+                        text: label,
+                        onClick: () => {
+                            LoadTileLayer(label);
+                        }
+                    });
+                })(possibleLayer.label);
+            }
+            actions.push('finishMode') // this is the finish button
+
             map.pm.Toolbar.createCustomControl({
                 name: 'LayersButton',
                 block: 'custom',
                 className: 'leaflet-pm-icon-layers',
-                title: 'My special button!',
-                afterClick: (event) => {
-                    console.log("just clicked on custom button")
-                    console.log(event)
-                    //map.pm.toggleGlobalEditMode();
-                },
+                title: 'Choose base layer',
                 toggle: true,
-                actions: [{
-                    text: "click me",
-                    onClick: () => {
-                        alert("🙋‍♂️");
-                        //map.pm.Toolbar.setButtonDisabled("CustomButton", false)
-                    },
-                },'finishMode'],
+                actions: actions
             });
 
+            // load this layer by default
+            LoadTileLayer("Thunderforest Outdoors")
             LoadDataFromDb();
         }
         SetupMap();
 
+        // text markers don't normally scale. This function scales them based on the current zoom level
         function ResizeTextMarkersBasedOnZoom() {
             var rootCSS = document.querySelector(':root');
             let layers = map.pm.getGeomanLayers();
