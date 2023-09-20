@@ -12,32 +12,33 @@ const pool = new Pool({
 
 
 function SetMapData(mapKey, data, config, completionCallback) {
-    console.log("we're in neondb setmapdata")
+    //console.log("we're in neondb SetMapData")
     const client = pool.connect()
       .then((poolClient) => {
         const values = [mapKey, data, config];
         poolClient.query('update "MapAnnotations" set "Data"=$2, "Config"=$3 where "MapKey"=$1', values)
-        .then((queryResult) => {
-          console.log(queryResult)
-        })  
+          .then((queryResult) => {
+            // there isn't actually any result
+            console.log(queryResult)
+          })  
+          .catch((error) => {
+            let errorMessage = "Error running SetMapData update query. " + error;
+            completionCallback(null, errorMessage);
+          });
+        })
         .catch((error) => {
-          console.log("errorrrrrr running update query!")
-          console.log(error);
+          let errorMessage = "Error connecting to neon. " + error;
+          completionCallback(null, errorMessage);
         });
-      })
-      .catch((error) => {
-        console.log("errorrrrrr connecting to neon!")
-        console.log(error);
-      });
 }
 
 function GetMapData(mapKey, completionCallback) {
-  console.log("we're in neondb.js GetMapData")
+  //console.log("we're in neondb.js GetMapData")
   const client = pool.connect()
     .then((poolClient) => {
       const values = [mapKey];
       poolClient
-        .query('select * from "MapAnnotationsDDDD" where "MapKey"=$1', values)
+        .query('select * from "MapAnnotations" where "MapKey"=$1', values)
         .then((queryResult) => {
           console.log(queryResult)
           console.log(queryResult.rows[0])
@@ -45,14 +46,11 @@ function GetMapData(mapKey, completionCallback) {
         })  
         .catch((error) => {
           let errorMessage = "Error running GetMapData select query. " + error;
-          console.log(errorMessage)
-          console.log(error);
           completionCallback(null, errorMessage);
         });
   })
   .catch((error) => {
     let errorMessage = "Error connecting to neon. " + error;
-    console.log(error);
     completionCallback(null, errorMessage);
   });
 

@@ -22,15 +22,9 @@ app.get('/map.html', function (req, res) {
 // provides a route for getting map data
 app.get('/getMapData', function (req, res) {
     let mapKey = req.query.key;
-
     var completionCallback = function(data, error) {
-        //console.log("in completionCallback")
-        //console.log(data)
         if(error) {
-            console.log("about to set an error of")
-            console.log(error)
             res.status(500).json({success: false, error : error});
-            //throw new Error(error);
         } else {
             res.send(data);
         }
@@ -40,19 +34,17 @@ app.get('/getMapData', function (req, res) {
 
 // provides a route for setting map data
 app.post('/setMapData', function (req, res) {
-    console.log("in server.js setMapData")
-
     let mapKey = req.body.key;
     let mapConfig = JSON.stringify(req.body.config);
     let mapData = JSON.stringify(req.body.data);
 
-    var completionCallback = function(data) {
-        //console.log("in completionCallback")
-        //console.log(data)
-        // send records as a response
-        res.send(data);
+    var completionCallback = function(data, error) {
+        if(error) {
+            res.status(500).json({success: false, error : error});
+        } else {
+            res.send(data);
+        }
     }
-
     db.SetMapData(mapKey, mapData, mapConfig, completionCallback);
 })
 
