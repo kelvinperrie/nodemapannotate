@@ -37,7 +37,6 @@
     <!-- 
     todo
     * put the map stuff in a class
-    * setup dev db
     * split out js + css
     -->
 
@@ -237,7 +236,6 @@
             }
             for (possibleLayer of availableLayers) {
                 if(possibleLayer.label === layerNameToLoad) {
-                    console.log("found the layer!")
                     map.addLayer(possibleLayer.layer);
                     currentLayer = possibleLayer.layer;
                     break;
@@ -257,7 +255,6 @@
                 attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
             });
             availableLayers.push({ label: "Esri Satelite", layer: Esri_WorldImagery })
-            console.log(availableLayers)
 
             // topo map
             var Thunderforest_Outdoors = L.tileLayer('https://{s}.tile.thunderforest.com/outdoors/{z}/{x}/{y}.png?apikey={apikey}', {
