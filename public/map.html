@@ -68,39 +68,41 @@
             }
 
             var geoLayers = JSON.parse(data);
-            for (geoLayer of geoLayers){
-                //console.log("we're adding a layer of type " + geoLayer.geometry.type)
-                // we have to treat point layers differently - circles and markers are built from points, but are not supported in
-                // the geojson format, so we need to reconstruct them using the options we crammed in the geojson layers when no one was looking
-                if(geoLayer.geometry.type === "Point") {
-                    //console.log("it's a point");
-                    L.geoJSON(geoLayer, {
-                        pointToLayer: function (feature, latlng) {
-                            // it's a marker - so it could be a circle or a marker (a marker can also be a text marker! yay!)
-                            // if its got a radius then it must be a circle right?!?
-                            if(feature.properties && feature.properties.radius) {
-                                // console.log("it's a circle");
-                                // console.log(feature.properties)
-                                return L.circle(latlng, feature.properties);
-                            } else {
-                                // it's a marker! If it's a text marker then that is determined by the properties
-                                // console.log("it's a marker");
-                                // console.log(feature.properties)
-                                // if we just throw the feature properies at the new marker as its options then it messes up some stuff internally on the marker (icon property)
-                                // so just copy the ones we care about to maintain our marker state
-                                let featureOptions = {};
-                                if(feature.properties && feature.properties.textMarker == true) {
-                                    featureOptions.textMarker = true;
-                                    featureOptions.text = feature.properties.text;
+            if(geoLayers) {
+                for (geoLayer of geoLayers){
+                    //console.log("we're adding a layer of type " + geoLayer.geometry.type)
+                    // we have to treat point layers differently - circles and markers are built from points, but are not supported in
+                    // the geojson format, so we need to reconstruct them using the options we crammed in the geojson layers when no one was looking
+                    if(geoLayer.geometry.type === "Point") {
+                        //console.log("it's a point");
+                        L.geoJSON(geoLayer, {
+                            pointToLayer: function (feature, latlng) {
+                                // it's a marker - so it could be a circle or a marker (a marker can also be a text marker! yay!)
+                                // if its got a radius then it must be a circle right?!?
+                                if(feature.properties && feature.properties.radius) {
+                                    // console.log("it's a circle");
+                                    // console.log(feature.properties)
+                                    return L.circle(latlng, feature.properties);
+                                } else {
+                                    // it's a marker! If it's a text marker then that is determined by the properties
+                                    // console.log("it's a marker");
+                                    // console.log(feature.properties)
+                                    // if we just throw the feature properies at the new marker as its options then it messes up some stuff internally on the marker (icon property)
+                                    // so just copy the ones we care about to maintain our marker state
+                                    let featureOptions = {};
+                                    if(feature.properties && feature.properties.textMarker == true) {
+                                        featureOptions.textMarker = true;
+                                        featureOptions.text = feature.properties.text;
+                                    }
+                                    //console.log(featureOptions);
+                                    return L.marker(latlng, featureOptions);
                                 }
-                                //console.log(featureOptions);
-                                return L.marker(latlng, featureOptions);
                             }
-                        }
-                    }).addTo(map);
-                } else {
-                    //console.log("I don't think we need to do anything special for this type of layer");
-                    L.geoJSON(geoLayer).addTo(map);
+                        }).addTo(map);
+                    } else {
+                        //console.log("I don't think we need to do anything special for this type of layer");
+                        L.geoJSON(geoLayer).addTo(map);
+                    }
                 }
             }
             HideLoadingPanel();
