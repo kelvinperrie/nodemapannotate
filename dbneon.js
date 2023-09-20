@@ -19,7 +19,8 @@ function SetMapData(mapKey, data, config, completionCallback) {
         poolClient.query('update "MapAnnotations" set "Data"=$2, "Config"=$3 where "MapKey"=$1', values)
           .then((queryResult) => {
             // there isn't actually any result
-            console.log(queryResult)
+            //console.log(queryResult)
+            completionCallback(null);
           })  
           .catch((error) => {
             let errorMessage = "Error running SetMapData update query. " + error;
@@ -40,8 +41,8 @@ function GetMapData(mapKey, completionCallback) {
       poolClient
         .query('select * from "MapAnnotations" where "MapKey"=$1', values)
         .then((queryResult) => {
-          console.log(queryResult)
-          console.log(queryResult.rows[0])
+          //console.log(queryResult)
+          //console.log(queryResult.rows[0])
           completionCallback(queryResult.rows[0])
         })  
         .catch((error) => {

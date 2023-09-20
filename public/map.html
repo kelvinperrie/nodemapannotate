@@ -210,17 +210,18 @@
                     'Content-Type': 'application/json'
                 } })
             .then((response) => {
+                console.log("response from setting map data")
                 if(response.ok) {
                     ShowUserMessage("success", "Map annotations have been saved!")
-                    return response.json();
+                    //return response.json();
                 } else {
                     return Promise.reject(response);
                 }
             })
-            .then((data) => {
-                // I don't think I need to return anything ...???
-                console.log(data);
-            })
+            // .then((data) => {
+            //     // I don't think I need to return anything ...???
+            //     console.log(data);
+            // })
             .catch(err => {
                 // [unhappy emoji]
                 if(err.json) {
