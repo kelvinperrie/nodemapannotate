@@ -111,9 +111,15 @@
         }
 
         function ShowUserMessage(type, message) {
+            // if it's an error message then the user has to close it
+            let duration = type === 'danger' ? -1  : 8000;
+            console.log(type)
+            console.log(type === 'danger')
             Toastify({
                 text: message,
-                duration: 10000
+                className: "alert-"+type,
+                duration: duration,
+                close: true
             }).showToast();
         }
 
@@ -150,11 +156,12 @@
                     console.log(err)
                     if(err.json) {
                         err.json().then((json) => {
-                            ShowUserMessage("error", json.error)
+                            ShowUserMessage("danger", json.error)
                         })
                     } else {
-                        ShowUserMessage("error", err)
+                        ShowUserMessage("danger", err)
                     }
+                    HideLoadingPanel();
                 })
             } else {
                 console.log("could not load data - no key supplied in query string params")

@@ -26,26 +26,33 @@ button {
     right: 5px;
 }
 
+.toastify {
+    border-width: 1px;
+    border-style: solid;
+}
+.toast-close {
+    color: #000;
+}
 
 
 .alert-info {
     color: #0a3622;
-    background-color: #cff4fc;
+    background: #cff4fc;
     border-color: #9eeaf9;
 }
 .alert-success {
     color: #055160;
-    background-color: #d1e7dd;
+    background: #d1e7dd;
     border-color: #a3cfbb;
 }
 .alert-warning {
     color: #664d03;
-    background-color: #fff3cd;
+    background: #fff3cd;
     border-color: #ffe69c;
 }
 .alert-danger {
     color: #58151c;
-    background-color: #f8d7da;
+    background: #f8d7da;
     border-color: #f1aeb5;
 }
 
