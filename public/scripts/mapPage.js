@@ -1,15 +1,15 @@
 
-let stupidGlobal = null;
 
 class MapPage {
 
     map = L.map('map').setView([-39.19340, 173.98926], 15);
     availableLayers = [];       // a collection of all available tile/base layers; used to swap between them
     currentLayer = null;        // holds the a reference to the current layer (so that we can remove it if required)
+    self = null;
 
     constructor() {
         
-        stupidGlobal = this;
+        self = this;
 
         // possible maps https://leaflet-extras.github.io/leaflet-providers/preview/
 
@@ -76,13 +76,13 @@ class MapPage {
         })
 
         var elm = document.getElementById("savebtn");
-        elm.onclick = function() { stupidGlobal.SaveDataToDb() };
+        elm.onclick = function() { self.SaveDataToDb() };
 
         var elm = document.getElementById("loadbtn");
-        elm.onclick = function() { stupidGlobal.LoadDataFromDb() };
+        elm.onclick = function() { self.LoadDataFromDb() };
 
         var elm = document.getElementById("clearbtn");
-        elm.onclick = function() { stupidGlobal.ClearAllDrawingLayers() };
+        elm.onclick = function() { self.ClearAllDrawingLayers() };
 
         // load this layer by default
         this.LoadTileLayer("Thunderforest Outdoors")
@@ -226,7 +226,6 @@ class MapPage {
         // we're going to check if we're editing and if we are we want to turn off editing
         // otherwise we end up saving all the temp edit shapes, and that sucks.
         // these methods seem weirdly named, but they seem to do what we want ...?
-        console.log(map)
         if(this.map.pm.globalEditModeEnabled()) {
             this.map.pm.disableGlobalEditMode();
         }
