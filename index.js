@@ -18,9 +18,9 @@ app.get('/map.html', function (req, res) {
     //res.sendFile('map.html', {root: path.join(__dirname, 'public')});
     res.sendFile( __dirname + "/public/map.html" );
 })
-app.get('/styles/site.css', function (req, res) {
+app.get('/styles/*.css', function (req, res) {
     //res.sendFile('map.html', {root: path.join(__dirname, 'public')});
-    res.sendFile( __dirname + "/public/styles/site.css" );
+    res.sendFile( __dirname + "/public/styles/*.css" );
 })
 
 // provides a route for getting map data
