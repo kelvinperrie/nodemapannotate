@@ -17,3 +17,6 @@ This is deployed at vercel here:
 https://mapannotate.vercel.app/map.html?key=test
 
 It would be great if you didn't put cuss words on it.
+
+
+This is an express app using leaflet.js to do the map stuff, geoman.js to do drawing tools, vercel to host, and a postgres db from neon.
