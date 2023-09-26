@@ -14,14 +14,14 @@ app.use(express.json());
 
 // serve our static map page
 app.use(express.static('public'));
-app.get('/map.html', function (req, res) {
-    //res.sendFile('map.html', {root: path.join(__dirname, 'public')});
-    res.sendFile( __dirname + "/public/map.html" );
-})
-app.get('/styles/*.css', function (req, res) {
-    //res.sendFile('map.html', {root: path.join(__dirname, 'public')});
-    res.sendFile( __dirname + "/public/styles/*.css" );
-})
+// app.get('/map.html', function (req, res) {
+//     //res.sendFile('map.html', {root: path.join(__dirname, 'public')});
+//     res.sendFile( __dirname + "/public/map.html" );
+// })
+// app.get('/styles/*.css', function (req, res) {
+//     //res.sendFile('map.html', {root: path.join(__dirname, 'public')});
+//     res.sendFile( __dirname + "/public/styles/*.css" );
+// })
 
 // provides a route for getting map data
 app.get('/getMapData', function (req, res) {
