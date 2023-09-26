@@ -1,4 +1,4 @@
-# nodemapannotate
+# mapannotate
 
 The goal is to create a map that can be drawn on (or annotated) and those changes saved. Then at a later date the annotations can be edited/removed/updated. 
 
