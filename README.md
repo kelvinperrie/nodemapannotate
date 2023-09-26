@@ -20,3 +20,13 @@ It would be great if you didn't put cuss words on it.
 
 
 This is an express app using leaflet.js to do the map stuff, geoman.js to do drawing tools, vercel to host, and a postgres db from neon.
+
+You can change layers:
+
+![Example 2](examples/mapannotate02.gif "Image of UI")
+
+You can do various shapes or whatever:
+
+![Example 3](examples/mapannotate03.gif "Image of UI")
+
+![Example 4](examples/mapannotate04.gif "Image of UI")
