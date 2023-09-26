@@ -194,6 +194,7 @@ class MapPage {
                 } })
             .then((response) => {
                 if(response.ok) {
+                    console.log(response)
                     return response.json();
                 } else {
                     return Promise.reject(response);
