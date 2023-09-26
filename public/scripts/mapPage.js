@@ -55,7 +55,7 @@ class MapPage {
                 actions.push({
                     text: label,
                     onClick: () => {
-                        stupidGlobal.LoadTileLayer(label);
+                        self.LoadTileLayer(label);
                     }
                 });
             })(possibleLayer.label);
