@@ -17,8 +17,14 @@ button {
 --fontSize: 11px;
 }
 
+
+.pm-textarea:hover{
+    background-color: #fff;
+}
+
 .pm-textarea{
     font-size: var(--fontSize);
+    background-color: transparent;
 }
 .action-bar {
     position: absolute;
