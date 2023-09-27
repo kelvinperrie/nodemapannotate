@@ -161,7 +161,7 @@ class MapPage {
                     }).addTo(this.map);
                 } else {
                     //console.log("I don't think we need to do anything special for this type of layer");
-                    L.geoJSON(geoLayer).addTo(map);
+                    L.geoJSON(geoLayer).addTo(this.map);
                 }
             }
         }
