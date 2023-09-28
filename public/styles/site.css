@@ -30,6 +30,7 @@ button {
     position: absolute;
     z-index: 1000;
     right: 5px;
+    margin-top: .5em;
 }
 
 .toastify {
@@ -65,4 +66,15 @@ button {
 
 .leaflet-pm-toolbar .leaflet-pm-icon-layers {
     background-image: url('../assets/Layers.svg');
+  }
+
+  .github-link {
+    vertical-align: top;
+    margin-left: .75em;
+    margin-right: .5em;
+  }
+  
+
+  .github-link img {
+    height: 25px;
   }

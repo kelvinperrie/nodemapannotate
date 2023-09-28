@@ -21,24 +21,21 @@
         <div class="loader-text"></div>
     </div>
     <div class="action-bar">
-        <button id="savebtn">
+        <button id="savebtn" title="save the current map with it's annotations">
             Save
         </button>
-        <button id="loadbtn">
+        <button id="loadbtn" title="load the map and annotations from the database - any unsaved changes will be lost">
             Load
         </button>
-        <button id="clearbtn">
+        <button id="clearbtn" title="remove all annotations from the map">
             Clear
         </button>
+        <a class="github-link" href="https://github.com/kelvinperrie/nodemapannotate" target="_blank" title="see the code repository on GitHub">
+            <img src="assets/GitHub-Mark-32px.png" alt="github icon" />
+        </a>
     </div>
 
     <div id="map"></div>
-
-    <!-- 
-    todo
-    * put the map stuff in a class
-    * split out js + css
-    -->
 
     <script src="scripts/mapPage.js"></script>
     <script>
