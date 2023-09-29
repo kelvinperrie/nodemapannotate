@@ -11,6 +11,49 @@ class MapPage {
         
         self = this;
 
+        this.SetupAvailableLayers()
+
+        // create a custom button for changing layers
+        // we're going to build up the actions for the button based on how many available layers we have
+        let actions = [];
+        for (let possibleLayer of this.availableLayers) {
+            (function(label){
+                actions.push({ text: label, onClick: () => { self.LoadTileLayer(label); } });
+            })(possibleLayer.label);
+        }
+        actions.push('finishMode') // this is the finish button
+        // create the custom control with the above given actions
+        this.map.pm.Toolbar.createCustomControl({
+            name: 'LayersButton',
+            block: 'custom',
+            className: 'leaflet-pm-icon-layers',
+            title: 'Choose base layer',
+            toggle: true,
+            actions: actions
+        });
+
+        // setup some handlers for the html to interact with this model
+        this.map.on('zoom zoomend',(e)=>{
+            this.ResizeTextMarkersBasedOnZoom();
+        })
+
+        var elm = document.getElementById("savebtn");
+        elm.onclick = function() { self.SaveDataToDb() };
+
+        var elm = document.getElementById("loadbtn");
+        elm.onclick = function() { self.LoadDataFromDb() };
+
+        var elm = document.getElementById("clearbtn");
+        elm.onclick = function() { self.ClearAllDrawingLayers() };
+
+        // load this layer by default
+        this.LoadTileLayer("Thunderforest Outdoors")
+        // load the map data from the database and display it on the page
+        this.LoadDataFromDb();
+    }
+
+    // sets up the possible base layers that can be used by the map
+    SetupAvailableLayers() {
         // possible maps https://leaflet-extras.github.io/leaflet-providers/preview/
 
         // sat images
@@ -34,7 +77,6 @@ class MapPage {
         // });
         // availableLayers.push({ label: "OpenTopoMap", layer: OpenTopoMap });
 
-
         var OpenStreetMap = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
             attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
@@ -46,54 +88,15 @@ class MapPage {
             drawCircleMarker: false,
             rotateMode: false,
         });
-
-        // create a custom button for changing layers
-        // we're going to build up the actions for the button based on how many available layers we have
-        let actions = [];
-        for (let possibleLayer of this.availableLayers) {
-            (function(label){
-                actions.push({
-                    text: label,
-                    onClick: () => {
-                        self.LoadTileLayer(label);
-                    }
-                });
-            })(possibleLayer.label);
-        }
-        actions.push('finishMode') // this is the finish button
-
-        this.map.pm.Toolbar.createCustomControl({
-            name: 'LayersButton',
-            block: 'custom',
-            className: 'leaflet-pm-icon-layers',
-            title: 'Choose base layer',
-            toggle: true,
-            actions: actions
-        });
-
-        this.map.on('zoom zoomend',(e)=>{
-            this.ResizeTextMarkersBasedOnZoom();
-        })
-
-        var elm = document.getElementById("savebtn");
-        elm.onclick = function() { self.SaveDataToDb() };
-
-        var elm = document.getElementById("loadbtn");
-        elm.onclick = function() { self.LoadDataFromDb() };
-
-        var elm = document.getElementById("clearbtn");
-        elm.onclick = function() { self.ClearAllDrawingLayers() };
-
-        // load this layer by default
-        this.LoadTileLayer("Thunderforest Outdoors")
-        this.LoadDataFromDb();
     }
 
     // attempts to load the given tile/base layer
     LoadTileLayer(layerNameToLoad) {
         if(this.currentLayer) {
+            // if we're already displaying a tile layer then remove it
             this.map.removeLayer(this.currentLayer);
         }
+        // locate the wanted layer in our collection of available layers, once found load it
         for (let possibleLayer of this.availableLayers) {
             if(possibleLayer.label === layerNameToLoad) {
                 this.map.addLayer(possibleLayer.layer);
@@ -110,7 +113,8 @@ class MapPage {
         });
         return params.key;
     }
-    // removes all geoman layers
+
+    // removes all geoman/annotation layers
     ClearAllDrawingLayers() {
         this.map.eachLayer(function(layer){
             if(layer instanceof L.Path || layer instanceof L.Marker){
@@ -119,6 +123,7 @@ class MapPage {
         });
     }
 
+    // takes a set of configuration and layer data and displays it on the map
     ShowDataOnMap(config, data) {
 
         // configure the map as per data from db
@@ -168,6 +173,7 @@ class MapPage {
         this.HideLoadingPanel();
     }
 
+    // used to display feedback information to the user
     ShowUserMessage(type, message) {
         // if it's an error message then the user has to close it; -1 duration means manual close
         let duration = type === 'danger' ? -1  : 8000;
@@ -179,6 +185,7 @@ class MapPage {
         }).showToast();
     }
 
+    // used to load from the database map configuration and annotations based on the key value in the query params
     LoadDataFromDb() {
         this.ShowLoadingPanel();
         this.ClearAllDrawingLayers();
@@ -194,7 +201,6 @@ class MapPage {
                 } })
             .then((response) => {
                 if(response.ok) {
-                    console.log(response)
                     return response.json();
                 } else {
                     return Promise.reject(response);
@@ -222,8 +228,9 @@ class MapPage {
             this.HideLoadingPanel();
         }
     }
-    SaveDataToDb(){
 
+    // used to save whatever is on the current map into the database, using the key value in the query params
+    SaveDataToDb(){
         // we're going to check if we're editing and if we are we want to turn off editing
         // otherwise we end up saving all the temp edit shapes, and that sucks.
         // these methods seem weirdly named, but they seem to do what we want ...?
@@ -286,8 +293,8 @@ class MapPage {
                 this.ShowUserMessage("danger", err)
             }
         })
-
     }
+
     // text markers don't normally scale. This function scales them based on the current zoom level
     ResizeTextMarkersBasedOnZoom() {
         var rootCSS = document.querySelector(':root');
@@ -314,25 +321,3 @@ class MapPage {
         document.getElementsByClassName('loader')[0].style.display  = 'none';
     }
   }
-
-
-        
-
-
-
-
-
-        function SetupMap() {
-
-        }
-        SetupMap();
-
-
-
-
-
-
-
-
-
-        
