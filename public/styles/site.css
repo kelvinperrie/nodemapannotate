@@ -63,6 +63,11 @@ button {
     border-color: #f1aeb5;
 }
 
+#toolBarVisibilityToggle {
+    cursor: pointer;
+    background-color: beige;
+    padding: 0 1em;
+}
 
 .leaflet-pm-toolbar .leaflet-pm-icon-layers {
     background-image: url('../assets/Layers.svg');

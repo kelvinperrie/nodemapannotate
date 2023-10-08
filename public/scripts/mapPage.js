@@ -31,6 +31,8 @@ class MapPage {
             toggle: true,
             actions: actions
         });
+        // hide the toolbar to start with
+        this.map.pm.toggleControls();
 
         // setup some handlers for the html to interact with this model
         this.map.on('zoom zoomend',(e)=>{
@@ -46,10 +48,27 @@ class MapPage {
         var elm = document.getElementById("clearbtn");
         elm.onclick = function() { self.ClearAllDrawingLayers() };
 
+        document.getElementById("toolBarVisibilityToggle").onclick = function() { self.ToggleToolBar_handler() };
+
         // load this layer by default
         this.LoadTileLayer("Thunderforest Outdoors")
         // load the map data from the database and display it on the page
         this.LoadDataFromDb();
+    }
+
+    // toggle the visibility of the toolbar
+    ToggleToolBar_handler() {
+        console.log("attempting to toggle toolbar visibility")
+        console.log(document.getElementById("toolBarVisibilityToggle").textContent);
+        this.map.pm.toggleControls();
+        // update the text on the visibility toggle link
+        if(this.map.pm.controlsVisible()) {
+            console.log("setting to show")
+            document.getElementById("toolBarVisibilityToggle").textContent="Hide tools"
+        } else {
+            console.log("setting to hide")
+            document.getElementById("toolBarVisibilityToggle").textContent="Show tools"
+        }
     }
 
     // sets up the possible base layers that can be used by the map

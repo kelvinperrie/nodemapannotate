@@ -30,6 +30,7 @@
         <button id="clearbtn" title="remove all annotations from the map">
             Clear
         </button>
+        <a id="toolBarVisibilityToggle" title="show/hide the drawing tools">Show tools</a>
         <a class="github-link" href="https://github.com/kelvinperrie/nodemapannotate" target="_blank" title="see the code repository on GitHub">
             <img src="assets/GitHub-Mark-32px.png" alt="github icon" />
         </a>
@@ -37,6 +38,14 @@
 
     <div id="map"></div>
 
+    <!-- todo
+        * move save, edit etc to toolbar
+        * make toolbar hidable
+        * message display on startup if message is in config
+        * test things work on mobile
+        * find a db provider that isn't going to expire so quick
+        * an some help / how to use
+    -->
     <script src="scripts/mapPage.js"></script>
     <script>
         let mappy = new MapPage();
