@@ -72,6 +72,9 @@ button {
 .leaflet-pm-toolbar .leaflet-pm-icon-layers {
     background-image: url('../assets/Layers.svg');
   }
+  .leaflet-pm-toolbar .leaflet-pm-icon-save {
+      background-image: url('../assets/Save.svg');
+    }
 
   .github-link {
     vertical-align: top;

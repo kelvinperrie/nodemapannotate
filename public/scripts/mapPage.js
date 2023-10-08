@@ -22,7 +22,7 @@ class MapPage {
             })(possibleLayer.label);
         }
         actions.push('finishMode') // this is the finish button
-        // create the custom control with the above given actions
+        // create a custom control to change layers with the above given actions
         this.map.pm.Toolbar.createCustomControl({
             name: 'LayersButton',
             block: 'custom',
@@ -31,6 +31,20 @@ class MapPage {
             toggle: true,
             actions: actions
         });
+        // create a custom control to save, load, or clear annotation data
+        this.map.pm.Toolbar.createCustomControl({
+            name: 'SaveLoadButton',
+            block: 'custom',
+            className: 'leaflet-pm-icon-save',
+            title: 'Save or load data',
+            toggle: true,
+            actions: [
+                { text: "Save", onClick: () => { self.SaveDataToDb(); } },
+                { text: "Load", onClick: () => { self.LoadDataFromDb(); } },
+                { text: "Clear", onClick: () => { self.ClearAllDrawingLayers(); } }
+            ]
+        });
+
         // hide the toolbar to start with
         this.map.pm.toggleControls();
 
@@ -38,15 +52,6 @@ class MapPage {
         this.map.on('zoom zoomend',(e)=>{
             this.ResizeTextMarkersBasedOnZoom();
         })
-
-        var elm = document.getElementById("savebtn");
-        elm.onclick = function() { self.SaveDataToDb() };
-
-        var elm = document.getElementById("loadbtn");
-        elm.onclick = function() { self.LoadDataFromDb() };
-
-        var elm = document.getElementById("clearbtn");
-        elm.onclick = function() { self.ClearAllDrawingLayers() };
 
         document.getElementById("toolBarVisibilityToggle").onclick = function() { self.ToggleToolBar_handler() };
 
@@ -58,15 +63,11 @@ class MapPage {
 
     // toggle the visibility of the toolbar
     ToggleToolBar_handler() {
-        console.log("attempting to toggle toolbar visibility")
-        console.log(document.getElementById("toolBarVisibilityToggle").textContent);
         this.map.pm.toggleControls();
         // update the text on the visibility toggle link
         if(this.map.pm.controlsVisible()) {
-            console.log("setting to show")
             document.getElementById("toolBarVisibilityToggle").textContent="Hide tools"
         } else {
-            console.log("setting to hide")
             document.getElementById("toolBarVisibilityToggle").textContent="Show tools"
         }
     }
