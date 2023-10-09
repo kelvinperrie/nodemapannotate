@@ -59,6 +59,8 @@ class MapPage {
         this.LoadTileLayer("Thunderforest Outdoors")
         // load the map data from the database and display it on the page
         this.LoadDataFromDb();
+
+        //this.ShowUserMessage("info", "This is an example starting message", -1);
     }
 
     // toggle the visibility of the toolbar
@@ -194,9 +196,13 @@ class MapPage {
     }
 
     // used to display feedback information to the user
-    ShowUserMessage(type, message) {
+    ShowUserMessage(type, message, displayDuration) {
         // if it's an error message then the user has to close it; -1 duration means manual close
         let duration = type === 'danger' ? -1  : 8000;
+        // if a duration is passed in then use that instead
+        if(displayDuration) {
+            duration = displayDuration;
+        }
         Toastify({
             text: message,
             className: "alert-"+type,
