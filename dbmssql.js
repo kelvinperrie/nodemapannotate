@@ -30,10 +30,11 @@ function SetMapData(mapKey, data, config, completionCallback) {
         .then((data) => {
             console.log("i just updated the MapAnnotations for " + mapKey)
             //console.log(data);
+            completionCallback(null);
           })
           .catch((error) => {
-            console.log("errorrrrrr!!!!!")
-            console.log(error);
+            let errorMessage = "Error running SetMapData update query. " + error;
+            completionCallback(null, errorMessage);
           })
 
     });
@@ -52,24 +53,14 @@ function GetMapData(mapKey, completionCallback) {
            
         request.input('mapKey', sql.VarChar, mapKey)
 
-        // request.query('select * from person where id=2', function(err, data) {
-        //     if (err) console.log(err)
-
-        //     // send records as a response
-        //     res.send(data.recordset);
-        // })
-
         request.query('select top 1 * from MapAnnotations where mapKey=@mapKey')
           .then((data) => {
-            console.log("i just got the MapAnnotations for " + mapKey)
-            console.log(data.recordset)
-            //return data.recordset;
             // only return the first record, otherwise it goes back as an array with a single item in it
             completionCallback(data.recordset[0])
           })
           .catch((error) => {
-            console.log("errorrrrrr!!!!!!!!!!!!!!!!!!!!!!!!!")
-            console.log(error);
+            let errorMessage = "Error running GetMapData select query. " + error;
+            completionCallback(null, errorMessage);
           })
     });
 
