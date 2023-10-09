@@ -65,8 +65,12 @@ button {
 
 #toolBarVisibilityToggle {
     cursor: pointer;
+}
+.action-item{
     background-color: beige;
-    padding: 0 1em;
+    padding: 0 .75em;
+    border: 1px solid gray;
+    margin: 0 .1em;
 }
 
 .leaflet-pm-toolbar .leaflet-pm-icon-layers {

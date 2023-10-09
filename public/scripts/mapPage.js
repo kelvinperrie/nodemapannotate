@@ -53,7 +53,7 @@ class MapPage {
             this.ResizeTextMarkersBasedOnZoom();
         })
 
-        document.getElementById("toolBarVisibilityToggle").onclick = function() { self.ToggleToolBar_handler() };
+        document.getElementById("toolBarVisibilityToggle").onclick = function(e) { self.ToggleToolBar_handler(e); return false; };
 
         // load this layer by default
         this.LoadTileLayer("Thunderforest Outdoors")
@@ -64,7 +64,7 @@ class MapPage {
     }
 
     // toggle the visibility of the toolbar
-    ToggleToolBar_handler() {
+    ToggleToolBar_handler(event) {
         this.map.pm.toggleControls();
         // update the text on the visibility toggle link
         if(this.map.pm.controlsVisible()) {
