@@ -25,7 +25,7 @@ This is an express app using leaflet.js to do the map stuff, geoman.js to do dra
 
 ## How to
 
-### Annotation the map
+### Annotating the map
 
 Click the 'Show tools' link so that the toolbar will show. Then select the shape you want to draw. Then click on the map to draw it.
 
