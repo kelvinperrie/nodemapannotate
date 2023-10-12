@@ -12,7 +12,7 @@ Being able to move and edit the annotations hopefully reduces the work involved 
 
 ![Example 1](examples/mapannotate01.gif "Image of UI")
 
-This is deployed at vercel here:
+This is deployed at vercel here (note this is dummy/made up data):
 
 https://mapannotate.vercel.app/map.html?key=test
 
